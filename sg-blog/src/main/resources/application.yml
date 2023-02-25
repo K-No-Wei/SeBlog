@@ -26,6 +26,6 @@ mybatis-plus:
 
 #七牛云
 oss:
-  accessKey: vVaPvQeCHNZE0fCQtqb0j4G8sgCSr3QF8IABp_12
-  secretKey: p0_9hwVb5fbnQWN7uHyZR7Lw0HXcAfjuxJp2BQcm
-  bucket: knowei-mp
+  accessKey:
+  secretKey:
+  bucket:

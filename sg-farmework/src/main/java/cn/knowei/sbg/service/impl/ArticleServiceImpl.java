@@ -2,11 +2,15 @@ package cn.knowei.sbg.service.impl;
 
 import cn.knowei.sbg.constants.SystemConstants;
 import cn.knowei.sbg.domain.ResponseResult;
+import cn.knowei.sbg.domain.dto.ArticleDto;
 import cn.knowei.sbg.domain.vo.*;
 import cn.knowei.sbg.entity.Article;
+import cn.knowei.sbg.entity.ArticleTag;
 import cn.knowei.sbg.entity.Category;
+import cn.knowei.sbg.entity.Tag;
 import cn.knowei.sbg.mapper.ArticleMapper;
 import cn.knowei.sbg.service.ArticleService;
+import cn.knowei.sbg.service.ArticleTagService;
 import cn.knowei.sbg.service.CategoryService;
 import cn.knowei.sbg.utils.BeanCopyUtils;
 import cn.knowei.sbg.utils.RedisCache;
@@ -15,6 +19,8 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Objects;
@@ -33,6 +39,9 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
 
     @Autowired
     private RedisCache redisCache;
+
+    @Autowired
+    private ArticleTagService articleTagService;
     @Override
     public ResponseResult hotArticleList() {
         LambdaQueryWrapper<Article> qw = new LambdaQueryWrapper<>();
@@ -88,6 +97,74 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     @Override
     public ResponseResult updateViewCount(Long id) {
         redisCache.incrementCacheMapValue("article:viewCount", id.toString(), 1);
+        return ResponseResult.okResult();
+    }
+
+    @Override
+    @Transactional
+    public ResponseResult publish(ArticleVo articleVo) {
+        Article article = BeanCopyUtils.copyBean(articleVo, Article.class);
+        save(article);
+
+        List<ArticleTag> articleTags = articleVo.getTags().stream()
+                .map(tag -> new ArticleTag(article.getId(), tag))
+                .collect(Collectors.toList());
+
+        articleTagService.saveBatch(articleTags);
+
+        return ResponseResult.okResult();
+    }
+
+    @Override
+    public ResponseResult list(Long pageNum, Long pageSize, ArticleDto articleDto) {
+        LambdaQueryWrapper<Article> qw = new LambdaQueryWrapper<>();
+        qw.eq(StringUtils.hasText(articleDto.getTitle()), Article::getTitle, articleDto.getTitle());
+        qw.eq(StringUtils.hasText(articleDto.getSummary()), Article::getSummary, articleDto.getSummary());
+
+        Page<Article> page = new Page<>(pageNum, pageSize);
+        page(page, qw);
+
+        return ResponseResult.okResult(new PageVo(page.getRecords(), page.getTotal()));
+    }
+
+    @Override
+    public ResponseResult getOne(Long id) {
+        List<ArticleTag> list = articleTagService.list(new LambdaQueryWrapper<ArticleTag>().eq(ArticleTag::getArticleId, id));
+        List<Long> tags = list.stream()
+                .map(ArticleTag::getTagId)
+                .collect(Collectors.toList());
+        Article article = getById(id);
+        ArticleVo articleVo = BeanCopyUtils.copyBean(article, ArticleVo.class);
+        articleVo.setTags(tags);
+
+        return ResponseResult.okResult(articleVo);
+
+    }
+
+    @Override
+    @Transactional
+    public ResponseResult update(ArticleVo articleVo) {
+        //更新文章
+        Article article = BeanCopyUtils.copyBean(articleVo, Article.class);
+        updateById(article);
+
+        //文章标签全部删除
+        List<Long> tags = articleVo.getTags();
+        for (Long tag : tags) {
+            articleTagService.remove(new LambdaQueryWrapper<ArticleTag>().eq(ArticleTag::getTagId, tag));
+        }
+        //文章标签增加
+        List<ArticleTag> articleTags = articleVo.getTags().stream()
+                .map(tag -> new ArticleTag(article.getId(), tag))
+                .collect(Collectors.toList());
+        articleTagService.saveBatch(articleTags);
+
+        return ResponseResult.okResult();
+    }
+
+    @Override
+    public ResponseResult delete(Long id) {
+        this.getBaseMapper().deleteById(id);
         return ResponseResult.okResult();
     }
 }

@@ -52,6 +52,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/logout").authenticated()
                 //用户信息需认证
                 .antMatchers("/user/userInfo").authenticated()
+                //评论接口需要认证
+                .antMatchers("/comment").authenticated()
+                .antMatchers("/comment/commentList").anonymous()
+                .antMatchers("/comment/linkCommentList").anonymous()
                 // 发行上面出现的url地址
                 .anyRequest().permitAll();
 

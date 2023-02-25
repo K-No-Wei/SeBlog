@@ -22,7 +22,9 @@ public enum AppHttpCodeEnum {
     NICKNAME_NOT_NULL(509, "昵称不能为空"),
     PASSWORD_NOT_NULL(510, "密码不能为空"),
     EMAIL_NOT_NULL(511, "邮箱不能为空"),
-    NICKNAME_EXIST(512, "昵称已存在");
+    NICKNAME_EXIST(512, "昵称已存在"),
+    MENU_ERROR(513, "上级菜单不可为自己"),
+    MENU_CHILD_EXIST(514, "存在子菜单，无法删除");
     int code;
     String msg;
 

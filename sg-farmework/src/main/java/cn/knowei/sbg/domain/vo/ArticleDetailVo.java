@@ -17,7 +17,6 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ArticleDetailVo {
-    @TableId
     private Long id;
     //标题
     private String title;
