@@ -1,0 +1,6 @@
+**/target/
+**/test/
+.idea
+sg-adin.iml
+sg-farmework.iml
+sg-blog.iml
