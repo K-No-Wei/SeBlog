@@ -118,6 +118,12 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements Ro
         return ResponseResult.okResult();
     }
 
+    @Override
+    public ResponseResult listAllRole() {
+        List<Role> roles = list();
+        return ResponseResult.okResult(roles);
+    }
+
 
 }
 

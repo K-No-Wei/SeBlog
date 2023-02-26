@@ -1,6 +1,8 @@
 package cn.knowei.sbg.service;
 
 import cn.knowei.sbg.domain.ResponseResult;
+import cn.knowei.sbg.domain.dto.LinkDto;
+import cn.knowei.sbg.domain.dto.LinkAllDto;
 import cn.knowei.sbg.entity.Link;
 import com.baomidou.mybatisplus.extension.service.IService;
 
@@ -15,5 +17,12 @@ public interface LinkService extends IService<Link> {
 
     ResponseResult getAllLink();
 
+    ResponseResult list(Long pageNum, Long pageSize, LinkDto linkDto);
+
+    ResponseResult add(LinkAllDto userAddDto);
+
+    ResponseResult getOne(Long id);
+
+    ResponseResult update(LinkAllDto linkAllDto);
 }
 
