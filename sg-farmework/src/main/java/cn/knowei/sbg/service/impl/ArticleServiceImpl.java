@@ -24,6 +24,7 @@ import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -44,6 +45,12 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     private ArticleTagService articleTagService;
     @Override
     public ResponseResult hotArticleList() {
+
+        List<HotArticleVo> redisArticle = redisCache.getCacheObject("HotArticle:blog");
+        if (!Objects.isNull(redisArticle) && redisArticle.size()!=0) {
+            System.out.println("-------------------缓存路过-------------------------");
+            return ResponseResult.okResult(redisArticle);
+        }
         LambdaQueryWrapper<Article> qw = new LambdaQueryWrapper<>();
         //已发布文章
         qw.eq(Article::getStatus, SystemConstants.ARTICLE_STATUS_NORMAL);
@@ -53,11 +60,9 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         List<Article> articles = page.getRecords();
         // System.out.println(articles);
         List<HotArticleVo> hotArticleVos = BeanCopyUtils.copyBeanList(articles, HotArticleVo.class);
-        // List<HotArticleVo> hotArticleVos = articles.stream().map(item -> {
-        //     HotArticleVo hotArticleVo = new HotArticleVo();
-        //     BeanUtils.copyProperties(item, hotArticleVo);
-        //     return hotArticleVo;
-        // }).collect(Collectors.toList());
+        System.out.println("---------------------没有缓存--------------------------");
+        redisCache.setCacheObject("HotArticle:blog", hotArticleVos, 30, TimeUnit.SECONDS);
+
         return ResponseResult.okResult(hotArticleVos);
     }
 
@@ -83,7 +88,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     public ResponseResult getArticleDetail(Long id) {
         Article article = getById(id);
         //redis获取浏览
-        Integer viewCount = redisCache.getCacheMapValue("article:viewCount", String.valueOf(id));
+        Integer viewCount = redisCache.getCacheMapValue(SystemConstants.REDIS_ARTICLE_VIEW, String.valueOf(id));
         article.setViewCount(Long.valueOf(viewCount));
         ArticleDetailVo articleDetailVo = BeanCopyUtils.copyBean(article, ArticleDetailVo.class);
         Long categoryId = articleDetailVo.getCategoryId();
@@ -96,7 +101,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
 
     @Override
     public ResponseResult updateViewCount(Long id) {
-        redisCache.incrementCacheMapValue("article:viewCount", id.toString(), 1);
+        redisCache.incrementCacheMapValue(SystemConstants.REDIS_ARTICLE_VIEW, id.toString(), 1);
         return ResponseResult.okResult();
     }
 

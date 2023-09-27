@@ -1,5 +1,6 @@
 package cn.knowei.sbg.runner;
 
+import cn.knowei.sbg.constants.SystemConstants;
 import cn.knowei.sbg.entity.Article;
 import cn.knowei.sbg.mapper.ArticleMapper;
 import cn.knowei.sbg.utils.RedisCache;
@@ -38,6 +39,6 @@ public class ViewCountRunner implements CommandLineRunner {
                         }
                 ));
         //存入redis中
-        redisCache.setCacheMap("article:viewCount", viewCountMap);
+        redisCache.setCacheMap(SystemConstants.REDIS_ARTICLE_VIEW, viewCountMap);
     }
 }

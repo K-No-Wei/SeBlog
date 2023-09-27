@@ -32,7 +32,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String s) throws UsernameNotFoundException {
-        //传入有用吗密码进行判断
+        //传入用户名密码进行判断
         LambdaQueryWrapper<User> qw = new LambdaQueryWrapper<>();
         qw.eq(User::getUsername, s);
 

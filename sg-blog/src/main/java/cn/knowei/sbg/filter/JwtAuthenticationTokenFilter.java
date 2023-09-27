@@ -33,6 +33,15 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
 
     @Autowired
     private RedisCache redisCache;
+
+    /**
+     * 拦截
+     * @param request
+     * @param response
+     * @param filterChain
+     * @throws ServletException
+     * @throws IOException
+     */
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String token = request.getHeader("token");
@@ -48,7 +57,7 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
             claims = JwtUtil.parseJWT(token);
         }catch (Exception e){
             e.printStackTrace();
-            //非法token
+            //非法token，使用
             ResponseResult result = ResponseResult.errorResult(AppHttpCodeEnum.NEED_LOGIN);
             WebUtils.renderString(response, JSON.toJSONString(result));
         }

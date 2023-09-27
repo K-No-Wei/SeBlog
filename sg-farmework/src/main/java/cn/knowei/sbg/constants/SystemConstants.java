@@ -21,4 +21,5 @@ public class SystemConstants {
     public static final String BUTTON = "F";
     public static final String STATUS_NORMAL = "0";
     public static final String ADMIN = "1";
+    public static final String REDIS_ARTICLE_VIEW = "article:viewCount";
 }

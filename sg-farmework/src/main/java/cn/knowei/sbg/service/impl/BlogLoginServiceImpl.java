@@ -45,7 +45,7 @@ public class BlogLoginServiceImpl implements LoginService {
         if (Objects.isNull(authenticate)){
             throw new RuntimeException("用户名密码错误");
         }
-        //工具userid生成token
+        //获取loginUser，工具userid生成token
         LoginUser loginUser = (LoginUser) authenticate.getPrincipal();
 
         String userId = loginUser.getUser().getId().toString();

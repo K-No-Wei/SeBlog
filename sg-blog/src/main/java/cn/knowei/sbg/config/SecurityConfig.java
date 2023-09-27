@@ -22,7 +22,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-    //密码校验
+    //自动密码校验
     @Bean
     public PasswordEncoder passwordEncoder(){
         return new BCryptPasswordEncoder();
@@ -54,6 +54,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/user/userInfo").authenticated()
                 //评论接口需要认证
                 .antMatchers("/comment").authenticated()
+                //允许任何人访问
                 .antMatchers("/comment/commentList").anonymous()
                 .antMatchers("/comment/linkCommentList").anonymous()
                 // 发行上面出现的url地址
